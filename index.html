@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Marketplace</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<style>
+  <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+
+  input {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 30%;
+  }
+
+  button {
+    padding: 10px 15px;
+    margin: 5px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  button:hover { background: #45a049; }
+
+  .filtres {
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .filtres button {
+    background: #008CBA;
+  }
+
+  .filtres button:hover {
+    background: #007bb5;
+  }
+
+  .produits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .produit {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+
+  .produit h3 { color: #333; margin-bottom: 8px; }
+  .produit p { color: #666; margin-bottom: 5px; }
+
+  .prix { color: #4CAF50 !important; font-weight: bold; font-size: 1.2rem; }
+
+  .btn-supprimer {
+    background: #e74c3c;
+    margin-top: 10px;
+  }
+
+  .btn-supprimer:hover { background: #c0392b; }
+  .formulaire {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.formulaire input {
+  width: 80%;
+}
+</style>
+</style>
+  </head>
+  <body>
+    <div id="root"></div>
+<script type="text/babel">
+  function App() {
+    // Les produits de base
+    const produitsInitiaux = JSON.parse(localStorage.getItem("produits")) || [
+     {id: 1, nom: "Telephone Samsung", prix: "150", categorie: "Électronique"},
+     {id: 2, nom: "Chaussure Nike", prix: "45", categorie: "Vêtements"},
+     {id: 3, nom: "Livre JavaScript", prix: "20", categorie: "Livres"},
+   ];
+     const [produits, setProduits] = React.useState(produitsInitiaux);
+
+    // Les champs du formulaire
+    const [nom, setNom] = React.useState("");
+    const [prix, setPrix] = React.useState("");
+    const [categorie, setCategorie] = React.useState("");
+
+    // Le filtre actif
+    const [filtre, setFiltre] = React.useState("Tous");
+
+    // Produits filtrés
+    const produitsFiltres = filtre === "Tous" 
+      ? produits 
+      : produits.filter(p => p.categorie === filtre);
+
+    function ajouterProduit() {
+        if (nom == "" || prix == "") {
+        alert("Remplis tous les champs !");
+     } else {
+       const nouveauxProduits = [...produits, {
+         id: produits.length + 1,
+        nom, prix, categorie
+      }];
+       setProduits(nouveauxProduits);
+      localStorage.setItem("produits", JSON.stringify(nouveauxProduits));
+      setNom(""); setPrix(""); setCategorie("");
+  }
+}
+
+function supprimerProduit(id) {
+  const nouveauxProduits = produits.filter(p => p.id !== id);
+  setProduits(nouveauxProduits);
+  localStorage.setItem("produits", JSON.stringify(nouveauxProduits));
+}
+
+    function supprimerProduit(id) {
+      setProduits(produits.filter(p => p.id !== id));
+    }
+
+    return (
+      <div className="produits">
+        <h1>🛒 Marketplace</h1>
+
+        {/* Formulaire ajout */}
+        <div className="formulaire">
+        <input value={nom} onChange={e => setNom(e.target.value)} placeholder="Nom du produit" />
+        <input value={prix} onChange={e => setPrix(e.target.value)} placeholder="Prix en $" />
+        <input value={categorie} onChange={e => setCategorie(e.target.value)} placeholder="Catégorie" />
+        <button onClick={ajouterProduit}>Ajouter</button>
+        </div>
+
+        {/* Boutons filtre */}
+        <div className="filtres">
+          <button onClick={() => setFiltre("Tous")}>Tous</button>
+          <button onClick={() => setFiltre("Électronique")}>Électronique</button>
+          <button onClick={() => setFiltre("Vêtements")}>Vêtements</button>
+          <button onClick={() => setFiltre("Livres")}>Livres</button>
+        </div>
+
+        {/* Liste produits filtrés */}
+        {produitsFiltres.map(produit => (
+          <div className="produit" key={produit.id}>
+            <h3>{produit.nom}</h3>
+            <p className="prix">{produit.prix} $</p>
+            <p>{produit.categorie}</p>
+            <button className="btn-supprimer" onClick={() => supprimerProduit(produit.id)}>🗑️ Supprimer</button>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  ReactDOM.render(<App />, document.getElementById("root"));
+</script>
+  </body>
+</html>
