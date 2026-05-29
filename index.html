@@ -153,15 +153,16 @@
       }
 
   return (
-    <div className="navbar">
+    <div>
       <h1>🛒 Marketplace</h1>
-       
+       <div className="navbar">
        <input 
          value={recherche}
       onChange={e => setRecherche(e.target.value)}
       placeholder="🔍 Rechercher un produit..."
      />
       <button onClick={() => allerA("ajouter")}>+ Ajouter un produit</button>
+      </div>
       <div className="filtres">
         <button onClick={() => setFiltre("Tous")}>Tous</button>
         <button onClick={() => setFiltre("Électronique")}>Électronique</button>
