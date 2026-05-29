@@ -103,74 +103,56 @@
     <div id="root"></div>
 <script type="text/babel">
   function App() {
-    // Les produits de base
-    const produitsInitiaux = JSON.parse(localStorage.getItem("produits")) || [
-     {id: 1, nom: "Telephone Samsung", prix: "150", categorie: "Électronique"},
-     {id: 2, nom: "Chaussure Nike", prix: "45", categorie: "Vêtements"},
-     {id: 3, nom: "Livre JavaScript", prix: "20", categorie: "Livres"},
-   ];
-     const [produits, setProduits] = React.useState(produitsInitiaux);
+        const [page, setPage] = React.useState("accueil");
+  
+        const produitsInitiaux = JSON.parse(localStorage.getItem("produits")) || [
+      {id: 1, nom: "Telephone Samsung", prix: "150", categorie: "Électronique"},
+      {id: 2, nom: "Chaussure Nike", prix: "45", categorie: "Vêtements"},
+      {id: 3, nom: "Livre JavaScript", prix: "20", categorie: "Livres"},
+    ];
+      const [produits, setProduits] = React.useState(produitsInitiaux);
 
-    // Les champs du formulaire
-    const [nom, setNom] = React.useState("");
-    const [prix, setPrix] = React.useState("");
-    const [categorie, setCategorie] = React.useState("");
+       if (page === "accueil") return <Accueil produits={produits} setProduits={setProduits} allerA={setPage} />;
+       if (page === "ajouter") return <Ajouter produits={produits} setProduits={setProduits} allerA={setPage} />;
+ }
 
-    // Le filtre actif
-    const [filtre, setFiltre] = React.useState("Tous");
 
-    // Produits filtrés
-    const produitsFiltres = filtre === "Tous" 
-      ? produits 
-      : produits.filter(p => p.categorie === filtre);
+  function Accueil({ produits, setProduits, allerA }) {
+         const [filtre, setFiltre] = React.useState("Tous");
+          const [recherche, setRecherche] = React.useState("");
+         const produitsFiltres = produits
+           .filter(p => filtre === "Tous" || p.categorie === filtre)
+           .filter(p => p.nom.toLowerCase().includes(recherche.toLowerCase()));
+           
 
-    function ajouterProduit() {
-        if (nom == "" || prix == "") {
-        alert("Remplis tous les champs !");
-     } else {
-       const nouveauxProduits = [...produits, {
-         id: produits.length + 1,
-        nom, prix, categorie
-      }];
-       setProduits(nouveauxProduits);
-      localStorage.setItem("produits", JSON.stringify(nouveauxProduits));
-      setNom(""); setPrix(""); setCategorie("");
-  }
-}
+     function supprimerProduit(id) {
+             const nouveauxProduits = produits.filter(p => p.id !== id);
+              setProduits(nouveauxProduits);
+             localStorage.setItem("produits", JSON.stringify(nouveauxProduits));
+      }
 
-function supprimerProduit(id) {
-  const nouveauxProduits = produits.filter(p => p.id !== id);
-  setProduits(nouveauxProduits);
-  localStorage.setItem("produits", JSON.stringify(nouveauxProduits));
-}
-
-    function supprimerProduit(id) {
-      setProduits(produits.filter(p => p.id !== id));
-    }
-
-    return (
+  return (
+    <div>
+      <h1>🛒 Marketplace</h1>
+       
+       <input 
+         value={recherche}
+      onChange={e => setRecherche(e.target.value)}
+      placeholder="🔍 Rechercher un produit..."
+     />
+      <button onClick={() => allerA("ajouter")}>+ Ajouter un produit</button>
+      <div className="filtres">
+        <button onClick={() => setFiltre("Tous")}>Tous</button>
+        <button onClick={() => setFiltre("Électronique")}>Électronique</button>
+        <button onClick={() => setFiltre("Vêtements")}>Vêtements</button>
+        <button onClick={() => setFiltre("Livres")}>Livres</button>
+      </div>
       <div className="produits">
-        <h1>🛒 Marketplace</h1>
-
-        {/* Formulaire ajout */}
-        <div className="formulaire">
-        <input value={nom} onChange={e => setNom(e.target.value)} placeholder="Nom du produit" />
-        <input value={prix} onChange={e => setPrix(e.target.value)} placeholder="Prix en $" />
-        <input value={categorie} onChange={e => setCategorie(e.target.value)} placeholder="Catégorie" />
-        <button onClick={ajouterProduit}>Ajouter</button>
-        </div>
-
-        {/* Boutons filtre */}
-        <div className="filtres">
-          <button onClick={() => setFiltre("Tous")}>Tous</button>
-          <button onClick={() => setFiltre("Électronique")}>Électronique</button>
-          <button onClick={() => setFiltre("Vêtements")}>Vêtements</button>
-          <button onClick={() => setFiltre("Livres")}>Livres</button>
-        </div>
-
-        {/* Liste produits filtrés */}
+      {produitsFiltres.length === 0 && (
+    <p>Aucun produit trouvé 😕</p>
+    )}
         {produitsFiltres.map(produit => (
-          <div className="produit" key={produit.id}>
+          <div key={produit.id} className="produit">
             <h3>{produit.nom}</h3>
             <p className="prix">{produit.prix} $</p>
             <p>{produit.categorie}</p>
@@ -178,8 +160,41 @@ function supprimerProduit(id) {
           </div>
         ))}
       </div>
-    );
+    </div>
+  );
+}
+function Ajouter({ produits, setProduits, allerA }) {
+  const [nom, setNom] = React.useState("");
+  const [prix, setPrix] = React.useState("");
+  const [categorie, setCategorie] = React.useState("");
+
+  function ajouterProduit() {
+    if (nom == "" || prix == "") {
+      alert("Remplis tous les champs !");
+    } else {
+      const nouveauxProduits = [...produits, {
+        id: produits.length + 1,
+        nom, prix, categorie
+      }];
+      setProduits(nouveauxProduits);
+      localStorage.setItem("produits", JSON.stringify(nouveauxProduits));
+      allerA("accueil");
+    }
   }
+
+  return (
+    <div>
+      <h1>➕ Ajouter un produit</h1>
+      <div className="formulaire">
+        <input value={nom} onChange={e => setNom(e.target.value)} placeholder="Nom du produit" />
+        <input value={prix} onChange={e => setPrix(e.target.value)} placeholder="Prix en $" />
+        <input value={categorie} onChange={e => setCategorie(e.target.value)} placeholder="Catégorie" />
+        <button onClick={ajouterProduit}>Ajouter</button>
+        <button onClick={() => allerA("accueil")}>← Retour</button>
+      </div>
+    </div>
+  );
+}
   ReactDOM.render(<App />, document.getElementById("root"));
 </script>
   </body>
